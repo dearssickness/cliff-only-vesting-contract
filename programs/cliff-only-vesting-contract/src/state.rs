@@ -13,7 +13,7 @@ pub struct CliffVestingAccount {
     pub token_mint: Pubkey,
     pub vesting_vault: Pubkey,
     pub cliff_duration: u64,
-    pub start_time: u64,
+    pub start_time: i64,
     pub decimals: u8,
     pub revocable: bool,
 }

@@ -7,7 +7,7 @@ pub struct InitializeAccounts<'info> {
     #[account(
        init,
        payer = admin,
-       seeds = [b"config_vesting", admin.key().as_ref()],
+       seeds = [b"config_vesting", token_mint.key().as_ref()],
        bump,
        space = 8 + 32 + 32 + 32 + 32 + 8 + 8 + 1 + 1,
     )]
@@ -16,7 +16,7 @@ pub struct InitializeAccounts<'info> {
     #[account(
        init,
        payer = admin,
-       seeds = [b"vesting_vault", admin.key().as_ref()],
+       seeds = [b"vesting_vault", token_mint.key().as_ref()],
        bump,
        token::mint = token_mint,
        token::authority = authority,
@@ -25,7 +25,7 @@ pub struct InitializeAccounts<'info> {
     
     /// CHECK: This account just used to sign transfers from vesting_vault
     #[account(
-        seeds = [b"authority", admin.key().as_ref()],
+        seeds = [b"authority", token_mint.key().as_ref()],
         bump,
     )]
     pub authority: AccountInfo<'info>,

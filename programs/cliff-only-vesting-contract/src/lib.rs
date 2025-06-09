@@ -4,6 +4,7 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 
 pub mod instructions;
 pub mod state;
+pub mod errors;
 
 use state::*;
 use instructions::*;
