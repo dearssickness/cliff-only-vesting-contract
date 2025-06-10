@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
-use crate::{errors::VestingErrors, state::*};
+use crate::{errors::*, state::*};
 
 #[derive(Accounts)]
 pub struct Claim<'info>{

@@ -1,4 +1,4 @@
-use anchor_lang::{prelude::*, solana_program::system_instruction::transfer, system_program::Transfer};
+use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::state::*;
 
@@ -39,7 +39,8 @@ pub fn handler(
     ctx: Context<InitializeVesting>, 
     decimals: u8, 
     start_time: i64, 
-    cliff_duration: u64
+    cliff_duration: u64,
+    revocable: bool
 ) -> Result<()> {
     let config = &mut ctx.accounts.config_vesting;
     config.vesting_vault = ctx.accounts.vesting_vault.key();
@@ -49,6 +50,7 @@ pub fn handler(
     config.decimals = decimals;
     config.start_time = start_time;
     config.cliff_duration = cliff_duration;
+    config.revocable = revocable;
     
     Ok(())
 }
