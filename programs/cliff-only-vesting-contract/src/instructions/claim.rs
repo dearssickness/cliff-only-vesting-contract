@@ -33,8 +33,6 @@ pub struct Claim<'info>{
     #[account(mut)]
     pub beneficiary_wallet: Account<'info, TokenAccount>,
 
-    #[account(mut)]
-    pub admin: Signer<'info>,
     pub token_mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>

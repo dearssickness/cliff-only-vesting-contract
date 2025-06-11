@@ -18,4 +18,32 @@ pub mod cliff_only_vesting_contract {
     pub fn initialize_accounts(ctx: Context<InitializeAccounts>) -> Result<()> {
         instructions::initialize_accounts::handler(ctx)
     }
+    
+    pub fn add_beneficiary(ctx: Context<AddBeneficiary>, total_tokens: u64) -> Result<()>{
+        instructions::add_beneficiary::handler(ctx, total_tokens)
+    }
+    
+    pub fn initialize_vesting(
+        ctx: Context<InitializeVesting>,
+        decimals: u8,
+        start_time: i64,
+        cliff_duration: u64,
+        revocable: bool
+    ) -> Result<()> {
+        instructions::initialize_vesting::handler(
+            ctx, 
+            decimals, 
+            start_time, 
+            cliff_duration, 
+            revocable
+        )
+    }
+    
+    pub fn claim(ctx: Context<Claim>) -> Result<()> {
+        instructions::claim::handler(ctx)
+    }
+    
+    pub fn revoke(ctx: Context<Revoke>) -> Result<()> {
+        instructions::revoke::handler(ctx)
+    }
 }

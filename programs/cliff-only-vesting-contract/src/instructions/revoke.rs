@@ -34,7 +34,7 @@ pub struct Revoke<'info>{
 }
 
 pub fn handler(ctx: Context<Revoke>) -> Result<()> {
-    let config = &ctx.accounts.config_vesting;
+    let config = &mut ctx.accounts.config_vesting;
     require!(config.revocable == true, VestingErrors::NotRevocable);
     
     let amount = ctx.accounts.vesting_vault.amount;
@@ -63,6 +63,8 @@ pub fn handler(ctx: Context<Revoke>) -> Result<()> {
     );
     
     token::transfer(cpi_ctx, amount)?;
+    
+    config.revocable = false;
 
     Ok(())
 }
