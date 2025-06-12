@@ -6,7 +6,7 @@ import { TOKEN_PROGRAM_ID, createMint, createAccount, mintTo, getAccount } from 
 import { assert } from "chai";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 
-describe("simple_token_vesting", () => {
+describe("cliff_only_vesting_contract", () => {
   const provider = anchor.AnchorProvider.env();
   anchor.setProvider(provider);
 
@@ -64,6 +64,7 @@ describe("simple_token_vesting", () => {
     beneficiary_data = beneficiaryDataPda;
 
     await mintTo(provider.connection, admin, token_mint, admin_token_account, admin, 15000000);
+    await mintTo(provider.connection, admin, token_mint, beneficiary_wallet, admin, 15000000);
 
     await program.methods
       .initializeAccounts()
@@ -81,6 +82,20 @@ describe("simple_token_vesting", () => {
         .rpc();
   });
 
+  it("Initialize a beneficiary account", async () => {
+    
+    await program.methods
+      .initializeBeneficiaryAccount()
+      .accounts({
+        beneficiaryData: beneficiary_data,
+        beneficiaryWallet: beneficiary_wallet,
+        admin: admin.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([admin])
+      .rpc();
+  });
+
   it("Add a beneficiary", async () => {
     
     await program.methods
@@ -88,11 +103,16 @@ describe("simple_token_vesting", () => {
       new anchor.BN(total_tokens),
       )
       .accounts({
-          beneficiaryWallet: beneficiary_wallet,
           beneficiaryData: beneficiary_data,
-          admin: admin,
+          beneficiaryWallet: beneficiary_wallet,
+          vestingVault: vesting_vault,
+          configVesting: config,
+          beneficiary: beneficiary.publicKey,
+          tokenMint: token_mint,
+          tokenProgram: TOKEN_PROGRAM_ID,
           systemProgram: SystemProgram.programId,
         })
+        .signers([beneficiary])
         .rpc();
   });
 
@@ -102,7 +122,6 @@ describe("simple_token_vesting", () => {
 
     await program.methods
       .initializeVesting(
-      new anchor.BN(amount),
       new anchor.BN(decimals),
       new anchor.BN(startTime),
       new anchor.BN(cliffDuration),

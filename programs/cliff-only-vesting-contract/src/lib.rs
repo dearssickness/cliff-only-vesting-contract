@@ -46,4 +46,10 @@ pub mod cliff_only_vesting_contract {
     pub fn revoke(ctx: Context<Revoke>) -> Result<()> {
         instructions::revoke::handler(ctx)
     }
+
+    pub fn initialize_beneficiary_account(
+        ctx: Context<InitializeBeneficiaryAccount>
+    ) -> Result<()> {
+        instructions::initialize_beneficiary_account::handler(ctx)
+    }
 }
