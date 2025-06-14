@@ -32,6 +32,9 @@ pub struct Claim<'info>{
 
     #[account(mut)]
     pub beneficiary_wallet: Account<'info, TokenAccount>,
+    
+    #[account(mut)]
+    pub beneficiary: Signer<'info>,
 
     pub token_mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
@@ -49,13 +52,28 @@ pub fn handler(ctx: Context<Claim>) -> Result<()>{
     
     require!(clock.unix_timestamp > cliff_time, VestingErrors::EarlyClaim);
  
-    
     let token_mint_key = &ctx.accounts.token_mint.key();
     let token_program = ctx.accounts.token_program.to_account_info();
 
     let beneficiary_data = &ctx.accounts.beneficiary_data;
     let total_beneficiary_tokens = beneficiary_data.total_tokens;
 
+    require!(!beneficiary_data.has_claimed, VestingErrors::AlreadyClaimed);
+    
+    require!(
+        ctx.accounts.beneficiary_wallet.owner == ctx.accounts.beneficiary.key(),
+        VestingErrors::InvalidBeneficiary
+    );
+    
+        // Verify token mint consistency
+    require!(
+        ctx.accounts.vesting_vault.mint == ctx.accounts.token_mint.key(),
+        VestingErrors::InvalidMint
+    );
+    require!(
+        ctx.accounts.beneficiary_wallet.mint == ctx.accounts.token_mint.key(),
+        VestingErrors::InvalidMint
+    );
     
     let authority_seeds = &[
         b"authority", 

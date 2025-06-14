@@ -1,3 +1,5 @@
+use std::io::Sink;
+
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use crate::{state::*, errors::*};
@@ -5,8 +7,9 @@ use crate::{state::*, errors::*};
 #[derive(Accounts)]
 pub struct Revoke<'info>{
     #[account(
-       seeds = [b"config_vesting", token_mint.key().as_ref()],
-       bump,
+        mut,
+        seeds = [b"config_vesting", token_mint.key().as_ref()],
+        bump,
     )]
     pub config_vesting: Account<'info, CliffVestingAccount>,
 
@@ -26,7 +29,9 @@ pub struct Revoke<'info>{
 
     #[account(mut)]
     pub admin_token_account: Account<'info, TokenAccount>,
- 
+    
+    #[account(mut)]
+    pub admin: Signer<'info>, 
     pub token_mint: Account<'info, Mint>,
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>

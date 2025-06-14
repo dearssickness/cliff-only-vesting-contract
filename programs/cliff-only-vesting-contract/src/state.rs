@@ -4,6 +4,7 @@ use anchor_lang::prelude::*;
 pub struct BeneficiaryData {
     pub beneficiary_wallet: Pubkey,
     pub total_tokens: u64,
+    pub has_claimed: bool
 }
 
 #[account]

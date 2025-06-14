@@ -41,6 +41,7 @@ pub fn handler(
     let beneficiary_data = &mut ctx.accounts.beneficiary_data;
     beneficiary_data.beneficiary_wallet = ctx.accounts.beneficiary_wallet.key();
     beneficiary_data.total_tokens = total_tokens;
+    beneficiary_data.has_claimed = false;
     
     let decimals = ctx.accounts.config_vesting.decimals;
 

@@ -9,7 +9,7 @@ pub struct InitializeBeneficiaryAccount<'info>{
        payer = admin,
        seeds = [b"beneficiary_data", beneficiary_wallet.key().as_ref()],
        bump,
-       space = 8 + 32 + 8 + 8,
+       space = 8 + 32 + 8 + 8 + 1,
     )]
     pub beneficiary_data: Account<'info, BeneficiaryData>,
 

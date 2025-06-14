@@ -5,8 +5,9 @@ use crate::state::*;
 #[derive(Accounts)]
 pub struct InitializeVesting<'info>{
     #[account(
-       seeds = [b"config_vesting", token_mint.key().as_ref()],
-       bump,
+        mut,
+        seeds = [b"config_vesting", token_mint.key().as_ref()],
+        bump,
     )]
     pub config_vesting: Account<'info, CliffVestingAccount>,
 
