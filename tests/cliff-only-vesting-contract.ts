@@ -23,9 +23,8 @@ describe("cliff_only_vesting_contract", () => {
   let beneficiary_data: PublicKey;
   let beneficiary_wallet: PublicKey;
   
-  const decimals = 2;
-  const amount = 5;
-  const total_tokens = 500;
+  const decimals = 3;
+  const total_tokens = 5;
   const startTime = Math.floor(Date.now() / 1000);
   const cliffDuration = 1; // 1 Seconds obviously for tests to pass!
 
@@ -96,29 +95,8 @@ describe("cliff_only_vesting_contract", () => {
       .rpc();
   });
 
-  it("Add a beneficiary", async () => {
-    
-    await program.methods
-      .addBeneficiary(
-      new anchor.BN(total_tokens),
-      )
-      .accounts({
-          beneficiaryData: beneficiary_data,
-          beneficiaryWallet: beneficiary_wallet,
-          vestingVault: vesting_vault,
-          configVesting: config_vesting,
-          beneficiary: beneficiary.publicKey,
-          tokenMint: token_mint,
-          tokenProgram: TOKEN_PROGRAM_ID,
-          systemProgram: SystemProgram.programId,
-        })
-        .signers([beneficiary])
-        .rpc();
-  });
-
   it("Initialize vesting", async () => {
 
-    const adminTokenAccountBefore = await getAccount(provider.connection, admin_token_account);
     const revocable = true;
 
     await program.methods
@@ -140,22 +118,43 @@ describe("cliff_only_vesting_contract", () => {
         })
         .signers([admin])
         .rpc();
+  });
 
-    const adminTokenAccountAfter = await getAccount(provider.connection, admin_token_account);
+  it("Add a beneficiary", async () => {
+    const vestingVaultBefore = await getAccount(provider.connection, vesting_vault);
+
+    const configVesting = await program.account.cliffVestingAccount.fetch(config_vesting);
+    console.log("Config Vesting State:", {
+        revocable: configVesting.revocable,
+        decimals: configVesting.decimals.toString(),
+        startTime: configVesting.startTime.toString(),
+        cliffDuration: configVesting.cliffDuration.toString(),
+    });    
+
+    await program.methods
+      .addBeneficiary(
+      new anchor.BN(total_tokens),
+      )
+      .accounts({
+          beneficiaryData: beneficiary_data,
+          beneficiaryWallet: beneficiary_wallet,
+          vestingVault: vesting_vault,
+          configVesting: config_vesting,
+          beneficiary: beneficiary.publicKey,
+          tokenMint: token_mint,
+          tokenProgram: TOKEN_PROGRAM_ID,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([beneficiary])
+        .rpc();
+
     const vestingVaultAfter = await getAccount(provider.connection, vesting_vault);
-    
-//    assert.equal(
-//      BigInt(Number(adminTokenAccountBefore.amount)) - (BigInt(amount) * BigInt(10 ** decimals)),
-//      BigInt(Number(adminTokenAccountAfter.amount)),
-//      "Admin token account should decrease"
-//    );
-//
-//    assert.equal(
-//      Number(vestingVaultAfter.amount),
-//      amount * 10 ** decimals,
-//      "Vesting vault should increase"
-//    );
 
+    assert.equal(
+        Number(vestingVaultBefore.amount) + total_tokens * 10 ** decimals,
+        Number(vestingVaultAfter.amount),
+        "Vesting vault amount should increase by total_tokens"
+    )
   });
 
   it("Claim vesting", async () => {
@@ -189,14 +188,8 @@ describe("cliff_only_vesting_contract", () => {
     });
 
 it("Revoke vesting", async () => {
-      // Fetch and log config_vesting state
-    const configVesting = await program.account.cliffVestingAccount.fetch(config_vesting);
-    console.log("Config Vesting State:", {
-        revocable: configVesting.revocable,
-        decimals: configVesting.decimals.toString(),
-        startTime: configVesting.startTime.toString(),
-        cliffDuration: configVesting.cliffDuration.toString(),
-    });
+    const adminTokenAccountBefore = await getAccount(provider.connection, admin_token_account);
+    console.log(adminTokenAccountBefore.amount)
 
     await program.methods
       .revoke()
@@ -212,6 +205,9 @@ it("Revoke vesting", async () => {
         })
         .signers([admin])
         .rpc();
+
+    const adminTokenAccountAfter = await getAccount(provider.connection, admin_token_account);
+    console.log(adminTokenAccountAfter.amount)
 
     });
 
